@@ -44,8 +44,7 @@ function download(url: string, destPath: string) {
 
       const len = parseInt(res.headers["content-length"] || "0", 10);
 
-      console.log();
-      const bar = new Progress("Downloading GPG [:bar] :percent :etas", {
+      const bar = new Progress("[:bar] :percent :etas", {
         complete: "=",
         incomplete: " ",
         width: 50,
