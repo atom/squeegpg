@@ -1,5 +1,7 @@
 # squeegpg
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/atom/squeegpg.svg)](https://greenkeeper.io/)
+
 Use a bundled GPG distribution from Node.js
 
 | Linux | Windows | MacOS |
