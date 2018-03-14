@@ -6,4 +6,7 @@ node_js:
 cache:
   directories:
   - node_modules
+before_install: npm install -g npm greenkeeper-lockfile@1
+before_script: greenkeeper-lockfile-update
 script: npm run ci:travis
+after_script: greenkeeper-lockfile-upload
