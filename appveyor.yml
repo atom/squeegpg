@@ -10,9 +10,10 @@ cache:
 - node_modules
 
 install:
-- npm install
+- ps: Install-Product node 7.9.0 x64
 
-build: off
+build:
+- npm install
 
 test_script:
 - npm run ci:appveyor
