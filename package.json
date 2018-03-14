@@ -12,6 +12,7 @@
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "mocha": "^5.0.4",
+    "ts-node": "^5.0.1",
     "tslint": "^5.9.1",
     "typescript": "^2.7.2"
   },
@@ -19,13 +20,11 @@
     "build:ts": "tsc",
     "lint": "tslint --config tslint.json --project tsconfig.json",
     "watch:ts": "tsc --watch",
-
     "ci:travis": "npm run test",
     "ci:circle:test": "npm run test",
     "ci:circle:lint": "npm run lint",
     "ci:appveyor": "npm run test",
-
-    "test": "mocha"
+    "test": "mocha --require ts-node/register test/**/*.ts"
   },
   "repository": {
     "type": "git",
