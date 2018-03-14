@@ -1,0 +1,50 @@
+version: 2.0
+
+jobs:
+
+  test:
+    macos:
+      xcode: "9.0"
+    steps:
+    - checkout
+    - restore_cache:
+        keys:
+        - macos-node-modules-{{ checksum "package-lock.json" }}
+        - macos-node-modules
+    - run:
+        name: install dependencies
+        command: npm install
+    - save_cache:
+        key: macos-node-modules-{{ checksum "package-lock.json" }}
+        paths:
+        - node_modules
+    - run:
+        name: unit tests
+        command: npm run ci:circle:test
+
+  lint:
+    macos:
+      xcode: "9.0"
+    steps:
+    - checkout
+    - restore_cache:
+        keys:
+        - macos-node-modules-{{ checksum "package-lock.json" }}
+        - macos-node-modules
+    - run:
+        name: install dependencies
+        command: npm install
+    - run:
+        name: lint source
+        command: npm run ci:circle:lint
+
+workflows:
+  version: 2
+
+  test:
+    jobs:
+    - test
+
+  lint:
+    jobs:
+    - lint
