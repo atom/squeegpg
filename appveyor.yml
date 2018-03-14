@@ -1,0 +1,18 @@
+skip_tags: true
+skip_branch_with_pr: true
+max_jobs: 1
+
+image: Visual Studio 2017
+platform: x64
+clone_depth: 5
+
+cache:
+- node_modules
+
+install:
+- npm install
+
+build: off
+
+test_script:
+- npm run ci:appveyor
