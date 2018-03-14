@@ -18,8 +18,14 @@
   "scripts": {
     "build:ts": "tsc",
     "lint": "tslint --config tslint.json --project tsconfig.json",
-    "test": "mocha",
-    "watch:ts": "tsc --watch"
+    "watch:ts": "tsc --watch",
+
+    "ci:travis": "npm run test",
+    "ci:circle:test": "npm run test",
+    "ci:circle:lint": "npm run lint",
+    "ci:appveyor": "npm run test",
+
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
