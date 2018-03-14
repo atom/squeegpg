@@ -21,6 +21,10 @@ jobs:
     - run:
         name: unit tests
         command: npm run ci:circle:test
+        environment:
+          MOCHA_FILE: test-results/mocha/output.xml
+    - store_test_results:
+        path: test-results
 
   lint:
     macos:
