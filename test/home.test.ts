@@ -1,6 +1,11 @@
-import {assert} from "chai";
+import chai from "chai";
+import chaiAsPromised from "chai-as-promised";
+chai.use(chaiAsPromised);
+const assert = chai.assert;
+
 import fs from "fs-extra";
 import path from "path";
+import temp from "temp";
 import {createTempDir} from "./helpers";
 
 import Home from "../src/home";
@@ -57,6 +62,17 @@ describe("home", () => {
   });
 
   describe("configuration", () => {
+    it("creates the directory", async () => {
+      const dir = temp.path({prefix: "squeegpg-"});
+      assert.isRejected(fs.stat(dir));
+
+      const h = new Home(dir, defaultOptions);
+      await h.ready();
+
+      const st = await fs.stat(dir);
+      assert.isTrue(st.isDirectory());
+    });
+
     it("creates a default gpg.conf", async () => {
       const dir = await createTempDir();
       const h = new Home(dir, defaultOptions);

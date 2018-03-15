@@ -57,12 +57,19 @@ export default class Home {
 
     const nativeDir = await Home.inferNative();
 
-    await Promise.all([
-      this.templateGpgConf(nativeDir),
-      this.templateGpgAgentConf(nativeDir),
-    ]);
+    await fs.mkdirs(this.dir);
+    try {
+      await this.acquireLock();
 
-    this.bootstrapped = true;
+      await Promise.all([
+        this.templateGpgConf(nativeDir),
+        this.templateGpgAgentConf(nativeDir),
+      ]);
+
+    } finally {
+      this.bootstrapped = true;
+      await this.releaseLock();
+    }
   }
 
   private templateGpgConf(_nativeDir: string | null) {
@@ -119,5 +126,42 @@ export default class Home {
 
   private logPath(component: string) {
     return path.join(this.dir, "logs", `${component}.log`);
+  }
+
+  private acquireLock() {
+    const lockfile = path.join(this.dir, ".bootstrap.lock");
+    const start = Date.now();
+
+    return new Promise((resolve, reject) => {
+      const check = async () => {
+        try {
+          const fd = await fs.open(lockfile, "wx", 0x600);
+          await fs.close(fd);
+
+          // Acquired
+          resolve();
+        } catch (e) {
+          if (e.code === "EEXIST") {
+            if (Date.now() - start >= this.opts.lockTimeout) {
+              // Stale lock. Take it over
+              await fs.remove(lockfile);
+              resolve();
+            } else {
+              // Otherwise, poll
+              setTimeout(check, 10);
+            }
+          } else {
+            reject(e);
+          }
+        }
+      };
+
+      check();
+    });
+  }
+
+  private releaseLock() {
+    const lockfile = path.join(this.dir, ".bootstrap.lock");
+    return fs.remove(lockfile);
   }
 }
