@@ -1,7 +1,10 @@
 import {assert} from "chai";
+import fs from "fs-extra";
 import path from "path";
+import {createTempDir} from "./helpers";
 
 import Home from "../src/home";
+import {defaultOptions} from "../src/options";
 
 describe("home", () => {
   let original: {GNUPGHOME?: string, APPDATA?: string, HOME?: string};
@@ -53,25 +56,65 @@ describe("home", () => {
     }
   });
 
-  describe("with a native 1.x installation", () => {
-    it("copies the keyring");
-    it("symlinks the public keyring");
-    it("symlinks the trustdb");
-  });
+  describe("configuration", () => {
+    it("creates a default gpg.conf", async () => {
+      const dir = await createTempDir();
+      const h = new Home(dir, defaultOptions);
+      await h.ready();
 
-  describe("with a native 2.1+ installation", () => {
-    it("symlinks the private-keys directory");
-    it("symlinks the public keyring");
-    it("symlinks the trustdb");
-  });
+      const gpgConf = await fs.readFile(path.join(dir, "gpg.conf"), {encoding: "utf8"});
 
-  describe("gpg configuration", () => {
-    it("sets controlled defaults");
-    it("disables the keyserver");
-  });
+      assert.match(gpgConf, /batch/);
+      assert.match(gpgConf, /no-tty/);
+      assert.match(gpgConf, /display-charset\s+utf-8/);
+      assert.match(gpgConf, /disable-dirmngr/);
+      assert.match(gpgConf, /no-autostart/);
+      assert.match(gpgConf, /exit-on-status-write-error/);
+      assert.match(gpgConf, /no-greeting/);
 
-  describe("gpg-agent configuration", () => {
-    it("sets the pinentry program");
-    it("enables debugging if requested");
+      const agentBin = path.resolve(__dirname, "../gpg/bin/gpg-agent");
+      assert.match(gpgConf, new RegExp(`agent-program\\s+${agentBin}`));
+    });
+
+    it("creates a default gpg-agent.conf", async () => {
+      const dir = await createTempDir();
+      const h = new Home(dir, defaultOptions);
+      await h.ready();
+
+      const gpgAgentConf = await fs.readFile(path.join(dir, "gpg-agent.conf"), {encoding: "utf8"});
+
+      assert.match(gpgAgentConf, /no-detach/);
+      assert.match(gpgAgentConf, /extra-socket\s+none/);
+
+      // TODO: test pinentry-program
+      // const pinentryBin = path.join(dir, "pinentry.sh");
+      // assert.match(gpgAgentConf, new RegExp(`pinentry-program\\s+${pinentryBin}`));
+    });
+
+    it("enables debug logging if requested", async () => {
+      const dir = await createTempDir();
+      const h = new Home(dir, {debugging: true});
+      await h.ready();
+
+      const [gpgConf, gpgAgentConf] = await Promise.all(
+        ["gpg.conf", "gpg-agent.conf"]
+          .map((confFile) => path.join(dir, confFile))
+          .map((confPath) => fs.readFile(confPath, {encoding: "utf8"})),
+      );
+
+      assert.match(gpgConf, /verbose/);
+
+      assert.match(gpgAgentConf, /debug-all/);
+      assert.match(gpgAgentConf, /debug-pinentry/);
+
+      const logFile = path.join(dir, "logs/gpg-agent.log");
+      assert.match(gpgAgentConf, new RegExp(`log-file ${logFile}`));
+    });
+
+    describe("with a native homedir", () => {
+      it("inherits selected options");
+
+      it("overrides most options");
+    });
   });
 });
