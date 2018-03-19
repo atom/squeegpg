@@ -16,3 +16,7 @@ export function applyDefaults(options: Options): IOptions {
     lockTimeout: options.lockTimeout === undefined ? defaultOptions.lockTimeout : options.lockTimeout,
   };
 }
+
+export interface IEnv {
+  [varname: string]: string;
+};
