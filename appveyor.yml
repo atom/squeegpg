@@ -10,6 +10,7 @@ cache:
 - node_modules
 
 install:
+- ps: Install-Product node 7.9.0 x64
 - npm install
 
 build: off
