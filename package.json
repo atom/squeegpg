@@ -23,7 +23,7 @@
     "mocha-appveyor-reporter": "^0.4.0",
     "mocha-junit-reporter": "^1.17.0",
     "progress": "^2.0.0",
-    "request": "^2.85.0",
+    "request": "^2.88.2",
     "tar": "^4.4.0",
     "ts-node": "^6.0.0",
     "tslint": "^5.9.1",
